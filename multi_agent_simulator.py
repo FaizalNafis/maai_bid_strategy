@@ -35,13 +35,13 @@ class BiddingEnvironment(object):
         """
 
         if criteria not in ['1','2']:
-        	raise ValueError('Invalid criteria');
+            raise ValueError('Invalid criteria');
 
         if(criteria == '1'):
-        	return self.original_bids
+            return self.original_bids
 
         if(criteria == '2'):
-	        return self.get_bids_budget_constrained()
+            return self.get_bids_budget_constrained()
 
         
 
@@ -66,100 +66,98 @@ class BiddingEnvironment(object):
 
     @property
     def number_bids(self):
-    	if not self.other_bids_registred:
-    		return 0 
+        if not self.other_bids_registred:
+            return 0 
 
-    	if(len(self.other_bids.shape) == 1):
-    		return 1
+        if(len(self.other_bids.shape) == 1):
+            return 1
 
-    	return self.other_bids.shape[1]
+        return self.other_bids.shape[1]
 
     def get_bids_budget_constrained(self):
-    	""" 
-    	Implementation of Criteria #2
+        """ 
+        Implementation of Criteria #2
 
-    	Winners have to be determined after all bids are collected since the 
-    	second highest price might change things when the agent runs out of
-    	money.
+        Winners have to be determined after all bids are collected since the 
+        second highest price might change things when the agent runs out of
+        money.
 
-    	Loops through 2D array other bids containing multiple bids per item
-    	that is being auctioned. 
-    	"""
+        Loops through 2D array other bids containing multiple bids per item
+        that is being auctioned. 
+        """
 
-    	if not (self.other_bids_registred):
-    		return self.original_bids
+        if not (self.other_bids_registred):
+            return self.original_bids
 
-    	bid_list = []
-
-
-    	if(isinstance(self.other_bids[0], np.number)):
-    		raise NotImplementedError('More than 1 other bids needed')
-
-    	# keep track of spending per agent
-    	agent_budget_left = {}
-    	for agent in range(len(self.other_bids[0])):
-    		agent_budget_left[agent] = self.budget
-
-    	# loop through all auction items
-    	for x in range(len(self.other_bids)):
-    		max_other_bids = np.max(self.other_bids[x])
-    		original_bid = self.original_bids[x]
-    		higer_bid = False
-
-    		# no other bid is higher than original bids 
-    		if max_other_bids < original_bid:
-    			print('continue')
-    			bid_list.append(original_bid)
-    			continue
-
-    		sorted_other_bids = np.sort(self.other_bids[x])[::-1]
-
-    		# loop through all other bids for this row sorted from high to low
-    		for i in range(len(sorted_other_bids)):
-    			bid = sorted_other_bids[i]
-
-    			# bid is higher than original bid
-    			if bid >= original_bid:
-
-    				# get the original index
-	    			index, = np.where(self.other_bids[x] == bid)
-	    			index = index[0]
-
-	    			if(i + 1 < len(sorted_other_bids)):
-	    				# get the second highest bid
-	    				second_higest_bid = sorted_other_bids[i + 1]
-
-	    				# original bid is second highest bid
-	    				if(original_bid > second_higest_bid):
-	    					second_higest_bid = original_bid
-
-	    			# no more other bids left
-	    			else:
-	    				second_higest_bid = original_bid
-
-    				# auction is won and agent has enough budget
-    				if(agent_budget_left[index] >= second_higest_bid):
-    					agent_budget_left[index] -= second_higest_bid
-    					bid_list.append(bid)
-    					higer_bid = True
-    					break
-
-    		# no agent had enough budget left
-    		if not higer_bid:
-	    		bid_list.append(original_bid)
-
-	    	# all_buget_left = 0
-	    	# for agent in agent_budget_left:
-	    	# 	all_buget_left += agent_budget_left[agent]
-
-	    	# if(all_buget_left == 0):
-	    	# 	print('All agents have exhausted their budget at item {}/{}'.format(x, self.length))
-
-	    	
-	    self.bids_budget_constrained = np.array(bid_list)
-    	return np.array(bid_list)
+        bid_list = []
 
 
+        if(isinstance(self.other_bids[0], np.number)):
+            raise NotImplementedError('More than 1 other bids needed')
+
+        # keep track of spending per agent
+        agent_budget_left = {}
+        for agent in range(len(self.other_bids[0])):
+            agent_budget_left[agent] = self.budget
+
+        # loop through all auction items
+        for x in range(len(self.other_bids)):
+            max_other_bids = np.max(self.other_bids[x])
+            original_bid = self.original_bids[x]
+            higer_bid = False
+
+            # no other bid is higher than original bids 
+            if max_other_bids < original_bid:
+                print('continue')
+                bid_list.append(original_bid)
+                continue
+
+            sorted_other_bids = np.sort(self.other_bids[x])[::-1]
+
+            # loop through all other bids for this row sorted from high to low
+            for i in range(len(sorted_other_bids)):
+                bid = sorted_other_bids[i]
+
+                # bid is higher than original bid
+                if bid >= original_bid:
+
+                    # get the original index
+                    index, = np.where(self.other_bids[x] == bid)
+                    index = index[0]
+
+                    if(i + 1 < len(sorted_other_bids)):
+                        # get the second highest bid
+                        second_higest_bid = sorted_other_bids[i + 1]
+
+                        # original bid is second highest bid
+                        if(original_bid > second_higest_bid):
+                            second_higest_bid = original_bid
+
+                    # no more other bids left
+                    else:
+                        second_higest_bid = original_bid
+
+                    # auction is won and agent has enough budget
+                    if(agent_budget_left[index] >= second_higest_bid):
+                        agent_budget_left[index] -= second_higest_bid
+                        bid_list.append(bid)
+                        higer_bid = True
+                        break
+
+            # no agent had enough budget left
+            if not higer_bid:
+                bid_list.append(original_bid)
+
+            # all_buget_left = 0
+            # for agent in agent_budget_left:
+            #   all_buget_left += agent_budget_left[agent]
+
+            # if(all_buget_left == 0):
+            #   print('All agents have exhausted their budget at item {}/{}'.format(x, self.length))
+            
+            
+        self.bids_budget_constrained = np.array(bid_list)
+        return np.array(bid_list)
 
 class BiddingAgent(object):
     """Builds bidding agent
@@ -274,7 +272,7 @@ class BiddingAgent(object):
         })
 
     def test(self):
-    	return True
+        return True
 
     def ctr_function(self):
         """Calculate click through rate"""
