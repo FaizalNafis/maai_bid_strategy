@@ -2,6 +2,7 @@ from __future__ import print_function, division
 
 import numpy as np
 import pandas as pd
+import copy
 
 
 class BiddingEnvironment(object):
@@ -41,7 +42,16 @@ class BiddingEnvironment(object):
             return self.original_bids
 
         if(criteria == '2'):
-            return self.get_bids_budget_constrained()
+            
+            # saved list is found, if new bids have been registerd
+            # manually update the list by calling 
+            # calculate_bids_budget_constrained()
+            
+            if 'bids_budget_constrained' in dir(self):
+                return self.bids_budget_constrained
+            
+            # calculate winners
+            return self.calculate_bids_budget_constrained()
 
         
 
@@ -74,7 +84,7 @@ class BiddingEnvironment(object):
 
         return self.other_bids.shape[1]
 
-    def get_bids_budget_constrained(self):
+    def calculate_bids_budget_constrained(self):
         """ 
         Implementation of Criteria #2
 
@@ -268,11 +278,11 @@ class BiddingAgent(object):
             'clicks': self.clicks,
             'lost': self.lost,
             'budget_left': self.budget_remaining,
-            'spend': self.spend
+            'spend': self.spend,
+            'too_expensive': self.too_expensive,
+            'items': self.lost + self.impressions + self.too_expensive
         })
 
-    def test(self):
-        return True
 
     def ctr_function(self):
         """Calculate click through rate"""
@@ -409,7 +419,7 @@ class BidStrategy:
             total number of items
         
         """
-        bids = pCTR
+        bids = copy.deepcopy(pCTR)
         bids[bids >= threshold] = bid_price
         bids[bids < threshold] = 1
 
