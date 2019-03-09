@@ -21,7 +21,6 @@ class BiddingEnvironment(object):
         self.other_bids = False
         self.other_bids_registred = False
         self.budget = 6250*1000
-        self.test = True
 
 
     def get_bids(self, criteria='1'):
@@ -48,12 +47,11 @@ class BiddingEnvironment(object):
             # manually update the list by calling 
             # calculate_bids_budget_constrained()
             
-            if self.bids_budget_constrained:
+            if 'bids_budget_constrained' in dir(self):
                 return self.bids_budget_constrained
             
             # calculate winners
-            self.calculate_bids_budget_constrained()
-            return self.bids_budget_constrained
+            return self.calculate_bids_budget_constrained()
 
         
 
@@ -280,11 +278,11 @@ class BiddingAgent(object):
             'clicks': self.clicks,
             'lost': self.lost,
             'budget_left': self.budget_remaining,
-            'spend': self.spend
+            'spend': self.spend,
+            'too_expensive': self.too_expensive,
+            'items': self.lost + self.impressions + self.too_expensive
         })
 
-    def test(self):
-        return True
 
     def ctr_function(self):
         """Calculate click through rate"""
