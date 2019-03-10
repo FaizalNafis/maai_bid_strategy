@@ -118,7 +118,6 @@ class BiddingEnvironment(object):
 
             # no other bid is higher than original bids 
             if max_other_bids < original_bid:
-                print('continue')
                 bid_list.append(original_bid)
                 continue
 
